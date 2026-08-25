@@ -8,10 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300&display=swap" rel="stylesheet">
 <style>
   /* ============================================================
-     EDIT ME: replace each <img src="https://picsum.photos/..."> in
-     the .slide elements below with your digital art pieces. Add or
-     remove <div class="slide"> blocks (and matching dots) for more
-     or fewer pieces — the slider adapts automatically.
+     EDIT ME: replace/add <img src="..."> lines inside the .slide
+     elements in the #track div below with your art. The gallery
+     loops endlessly no matter how many slides you have.
      ============================================================ */
 
   *{ box-sizing: border-box; }
@@ -85,7 +84,7 @@
   .frame{
     display: inline-block;
     background: #faf7f0;
-    padding: 26px;
+    padding: 10px;
     border: 9px solid #2a241d;
     box-shadow: 0 26px 50px rgba(42,36,29,.28), 0 2px 0 rgba(255,255,255,.5) inset;
     max-width: 100%;
@@ -93,7 +92,7 @@
 
   .frame img{
     display: block;
-    max-height: 50vh;
+    max-height: 54vh;
     max-width: 100%;
     width: auto;
     height: auto;
@@ -158,9 +157,10 @@
 
 <div class="stage-wrap">
   <div class="track" id="track">
+    <!-- real slides go here, in order -->
     <div class="slide"><div class="frame"><img src="pone.png" alt=""></div></div>
     <div class="slide"><div class="frame"><img src="pthree.png" alt=""></div></div>
-    <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda3/750/750" alt=""></div></div>
+    <div class="slide"><div class="frame"><img src="ptwo" alt=""></div></div>
     <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda4/650/850" alt=""></div></div>
     <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda5/950/700" alt=""></div></div>
     <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda6/800/800" alt=""></div></div>
@@ -178,49 +178,78 @@
 
 <script>
   var track = document.getElementById('track');
-  var slides = document.querySelectorAll('.slide');
   var dotsWrap = document.getElementById('dots');
   var prevBtn = document.getElementById('prevBtn');
   var nextBtn = document.getElementById('nextBtn');
-  var count = slides.length;
-  var index = 0;
+
+  // ---- build an infinite loop by cloning the first/last real slides ----
+  var realSlides = Array.prototype.slice.call(track.children);
+  var count = realSlides.length;
+
+  var firstClone = realSlides[0].cloneNode(true);
+  var lastClone = realSlides[count - 1].cloneNode(true);
+  firstClone.setAttribute('aria-hidden', 'true');
+  lastClone.setAttribute('aria-hidden', 'true');
+
+  track.appendChild(firstClone);                  // clone of first goes at the end
+  track.insertBefore(lastClone, realSlides[0]);    // clone of last goes at the start
+
+  // index 0 = clone of last, 1..count = real slides, count+1 = clone of first
+  var index = 1;
   var programmatic = false;
 
+  // dots reflect only the real slides
   for(var i = 0; i < count; i++){
     var d = document.createElement('button');
     d.className = 'dot' + (i === 0 ? ' active' : '');
     d.setAttribute('aria-label', 'Go to piece ' + (i + 1));
-    d.addEventListener('click', (function(n){ return function(){ goTo(n); }; })(i));
+    d.addEventListener('click', (function(n){ return function(){ goTo(n + 1); }; })(i));
     dotsWrap.appendChild(d);
   }
   var dots = document.querySelectorAll('.dot');
 
+  function realIndex(i){
+    return ((i - 1) + count) % count;
+  }
+
   function updateDots(){
-    dots.forEach(function(dt, i){ dt.classList.toggle('active', i === index); });
+    var r = realIndex(index);
+    dots.forEach(function(dt, i){ dt.classList.toggle('active', i === r); });
+  }
+
+  function jumpInstant(target){
+    programmatic = true;
+    track.style.scrollBehavior = 'auto';
+    track.scrollLeft = target * track.clientWidth;
+    void track.offsetHeight; // force reflow
+    track.style.scrollBehavior = '';
+    index = target;
+    updateDots();
+    setTimeout(function(){ programmatic = false; }, 30);
   }
 
   function goTo(n){
-    index = (n + count) % count;
     programmatic = true;
+    index = n;
     track.scrollTo({ left: index * track.clientWidth, behavior: 'smooth' });
     updateDots();
   }
 
   var scrollTimeout;
   track.addEventListener('scroll', function(){
-    if(programmatic) return;
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(function(){
-      index = Math.round(track.scrollLeft / track.clientWidth);
-      updateDots();
-    }, 80);
-  }, { passive: true });
-
-  track.addEventListener('scrollend', function(){ programmatic = false; });
-  // fallback for browsers without scrollend
-  track.addEventListener('scroll', function(){
-    clearTimeout(track._endTimer);
-    track._endTimer = setTimeout(function(){ programmatic = false; }, 150);
+      var newIndex = Math.round(track.scrollLeft / track.clientWidth);
+      if(newIndex === 0){
+        jumpInstant(count);        // landed on the "last" clone -> snap to real last
+      } else if(newIndex === count + 1){
+        jumpInstant(1);            // landed on the "first" clone -> snap to real first
+      } else {
+        index = newIndex;
+        updateDots();
+        programmatic = false;
+      }
+    }, 120);
   }, { passive: true });
 
   prevBtn.addEventListener('click', function(){ goTo(index - 1); });
@@ -232,8 +261,11 @@
   });
 
   window.addEventListener('resize', function(){
-    track.scrollTo({ left: index * track.clientWidth });
+    jumpInstant(index);
   });
+
+  // initial position: start on the first real slide, no animation
+  jumpInstant(1);
 </script>
 
 </body>
