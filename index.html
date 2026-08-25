@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Panda Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     EDIT ME: replace each <img src="https://picsum.photos/..."> in
+     the .slide elements below with your digital art pieces. Add or
+     remove <div class="slide"> blocks (and matching dots) for more
+     or fewer pieces — the slider adapts automatically.
+     ============================================================ */
+
+  *{ box-sizing: border-box; }
+  html, body{ height: 100%; margin:0; }
+
+  body{
+    min-height:100vh;
+    background: linear-gradient(180deg, #ece5d6 0%, #e6ddca 55%, #ddd2ba 100%);
+    color: #3a332c;
+    font-family: 'Fraunces', serif;
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+  }
+
+  .spotlight{
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70vw;
+    max-width: 900px;
+    height: 60vh;
+    background: radial-gradient(ellipse at center, rgba(255,252,244,0.55) 0%, rgba(255,252,244,0) 70%);
+    pointer-events: none;
+  }
+
+  h1.title{
+    position: relative;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+    letter-spacing: .01em;
+    margin: 0 0 44px;
+    text-align: center;
+    color: #3a332c;
+  }
+
+  .stage-wrap{
+    position: relative;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .track{
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    border-radius: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .track::-webkit-scrollbar{ display: none; }
+
+  .slide{
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    height: 62vh;
+    min-height: 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+  }
+
+  .frame{
+    display: inline-block;
+    background: #faf7f0;
+    padding: 26px;
+    border: 9px solid #2a241d;
+    box-shadow: 0 26px 50px rgba(42,36,29,.28), 0 2px 0 rgba(255,255,255,.5) inset;
+    max-width: 100%;
+  }
+
+  .frame img{
+    display: block;
+    max-height: 50vh;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .arrow{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(250,247,240,.9);
+    border: 1px solid rgba(42,36,29,.15);
+    box-shadow: 0 8px 20px rgba(42,36,29,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .arrow:hover{ transform: translateY(-50%) scale(1.06); box-shadow: 0 10px 24px rgba(42,36,29,.28); }
+  .arrow:focus-visible{ outline: 1.5px solid #8a7a5c; outline-offset: 3px; }
+  .arrow.prev{ left: -22px; }
+  .arrow.next{ right: -22px; }
+  .arrow svg{ width: 18px; height: 18px; stroke: #3a332c; }
+
+  .dots{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+  }
+  .dot{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(58,51,44,.28);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform .2s ease, background .2s ease;
+  }
+  .dot:focus-visible{ outline: 1.5px solid #8a7a5c; outline-offset: 3px; }
+  .dot.active{ background: #8a7a5c; transform: scale(1.3); }
+
+  @media (max-width: 560px){
+    .arrow.prev{ left: 6px; }
+    .arrow.next{ right: 6px; }
+    .arrow{ width: 40px; height: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="spotlight" aria-hidden="true"></div>
+
+<h1 class="title">The Panda Collection</h1>
+
+<div class="stage-wrap">
+  <div class="track" id="track">
+    <div class="slide"><div class="frame"><img src="pone.png" alt=""></div></div>
+    <div class="slide"><div class="frame"><img src="pthree.png" alt=""></div></div>
+    <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda3/750/750" alt=""></div></div>
+    <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda4/650/850" alt=""></div></div>
+    <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda5/950/700" alt=""></div></div>
+    <div class="slide"><div class="frame"><img src="https://picsum.photos/seed/panda6/800/800" alt=""></div></div>
+  </div>
+
+  <button class="arrow prev" id="prevBtn" aria-label="Previous piece">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  </button>
+  <button class="arrow next" id="nextBtn" aria-label="Next piece">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  </button>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<script>
+  var track = document.getElementById('track');
+  var slides = document.querySelectorAll('.slide');
+  var dotsWrap = document.getElementById('dots');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var count = slides.length;
+  var index = 0;
+  var programmatic = false;
+
+  for(var i = 0; i < count; i++){
+    var d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Go to piece ' + (i + 1));
+    d.addEventListener('click', (function(n){ return function(){ goTo(n); }; })(i));
+    dotsWrap.appendChild(d);
+  }
+  var dots = document.querySelectorAll('.dot');
+
+  function updateDots(){
+    dots.forEach(function(dt, i){ dt.classList.toggle('active', i === index); });
+  }
+
+  function goTo(n){
+    index = (n + count) % count;
+    programmatic = true;
+    track.scrollTo({ left: index * track.clientWidth, behavior: 'smooth' });
+    updateDots();
+  }
+
+  var scrollTimeout;
+  track.addEventListener('scroll', function(){
+    if(programmatic) return;
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(function(){
+      index = Math.round(track.scrollLeft / track.clientWidth);
+      updateDots();
+    }, 80);
+  }, { passive: true });
+
+  track.addEventListener('scrollend', function(){ programmatic = false; });
+  // fallback for browsers without scrollend
+  track.addEventListener('scroll', function(){
+    clearTimeout(track._endTimer);
+    track._endTimer = setTimeout(function(){ programmatic = false; }, 150);
+  }, { passive: true });
+
+  prevBtn.addEventListener('click', function(){ goTo(index - 1); });
+  nextBtn.addEventListener('click', function(){ goTo(index + 1); });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowLeft') goTo(index - 1);
+    if(e.key === 'ArrowRight') goTo(index + 1);
+  });
+
+  window.addEventListener('resize', function(){
+    track.scrollTo({ left: index * track.clientWidth });
+  });
+</script>
+
+</body>
+</html>
